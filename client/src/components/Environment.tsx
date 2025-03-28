@@ -79,10 +79,10 @@ export function Environment() {
       moveVector.addScaledVector(cameraForward.current, -MOVEMENT_SPEED);
     }
     if (leftward) {
-      moveVector.addScaledVector(cameraRight.current, -MOVEMENT_SPEED);
+      moveVector.addScaledVector(cameraRight.current, MOVEMENT_SPEED);
     }
     if (rightward) {
-      moveVector.addScaledVector(cameraRight.current, MOVEMENT_SPEED);
+      moveVector.addScaledVector(cameraRight.current, -MOVEMENT_SPEED);
     }
     
     // Normalize diagonal movement to maintain consistent speed
