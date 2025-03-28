@@ -1,66 +1,57 @@
 
-import React, { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import * as THREE from 'three';
 
 interface ModelUploaderProps {
   onModelSelect: (model: THREE.Group) => void;
 }
 
 export function ModelUploader({ onModelSelect }: ModelUploaderProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
-    if (file && file.name.endsWith('.glb')) {
-      setLoading(true);
-      setError(null);
-      try {
-        const url = URL.createObjectURL(file);
-        const loader = new GLTFLoader();
-        const gltf = await new Promise<any>((resolve, reject) => {
-          loader.load(url, resolve, undefined, reject);
-        });
-        
-        if (gltf.scene) {
-          onModelSelect(gltf.scene);
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const arrayBuffer = event.target?.result;
+      if (!arrayBuffer || typeof arrayBuffer === 'string') return;
+
+      const loader = new GLTFLoader();
+      loader.parse(arrayBuffer, '', 
+        (gltf) => {
+          const model = gltf.scene;
+          onModelSelect(model);
+        },
+        (error) => {
+          console.error('Error loading model:', error);
         }
-      } catch (err) {
-        setError('Failed to load model');
-        console.error('Error loading model:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
+      );
+    };
+    reader.readAsArrayBuffer(file);
   }, [onModelSelect]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
-      'model/gltf-binary': ['.glb']
-    },
-    multiple: false
+      'model/gltf+binary': ['.glb'],
+      'model/gltf+json': ['.gltf']
+    }
   });
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <div
-        {...getRootProps()}
-        className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 cursor-pointer hover:bg-white/20 transition-colors"
-      >
-        <input {...getInputProps()} />
-        {loading ? (
-          <p>Loading model...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : isDragActive ? (
-          <p>Drop the GLB file here...</p>
-        ) : (
-          <p>Upload GLB model</p>
-        )}
-      </div>
+    <div {...getRootProps()} style={{
+      position: 'fixed',
+      bottom: 20,
+      right: 20,
+      padding: '20px',
+      background: 'rgba(255, 255, 255, 0.1)',
+      borderRadius: '8px',
+      cursor: 'pointer'
+    }}>
+      <input {...getInputProps()} />
+      <p style={{ margin: 0, color: 'white' }}>Drop .glb/.gltf model here</p>
     </div>
   );
 }
