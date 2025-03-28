@@ -1,7 +1,7 @@
 import React, { forwardRef, useRef, useState, useEffect } from 'react';
 import { Box } from '@react-three/drei';
 import * as THREE from 'three';
-import { useAudio } from '../hooks/useAudio';
+import { useAudio } from '../hooks/useAudio.ts';
 
 interface AvatarProps {
   position: [number, number, number];
