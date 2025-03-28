@@ -1,0 +1,3 @@
+// This would be a binary file so we can't include the content directly.
+// In a real implementation, a 3D model file would be provided here.
+// For our implementation, we're creating the dioramas programmatically in their respective components.
