@@ -1,16 +1,35 @@
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import * as THREE from 'three';
+import { useLoader } from '@react-three/fiber';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 interface ModelUploaderProps {
-  onModelSelect: (file: File) => void;
+  onModelSelect: (model: THREE.Group) => void;
 }
 
 export function ModelUploader({ onModelSelect }: ModelUploaderProps) {
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const [loading, setLoading] = useState(false);
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file && file.name.endsWith('.glb')) {
-      onModelSelect(file);
+      setLoading(true);
+      try {
+        const url = URL.createObjectURL(file);
+        const gltf = await new Promise((resolve, reject) => {
+          const loader = new GLTFLoader();
+          loader.load(url, resolve, undefined, reject);
+        });
+        if (gltf.scene) {
+          onModelSelect(gltf.scene);
+        }
+      } catch (error) {
+        console.error('Error loading model:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   }, [onModelSelect]);
 
@@ -27,7 +46,9 @@ export function ModelUploader({ onModelSelect }: ModelUploaderProps) {
         className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 cursor-pointer hover:bg-white/20 transition-colors"
       >
         <input {...getInputProps()} />
-        {isDragActive ? (
+        {loading ? (
+          <p>Loading model...</p>
+        ) : isDragActive ? (
           <p>Drop the GLB file here...</p>
         ) : (
           <p>Drag & drop or click to select GLB model</p>

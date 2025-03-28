@@ -40,10 +40,17 @@ export function Environment() {
 
   // Model loading state
   const [loadedModel, setLoadedModel] = useState<any>(null);
+  const [customModel, setCustomModel] = useState<THREE.Group | null>(null); // Added custom model state
   const gltf = useLoader(GLTFLoader, ''); // Initialize with empty string
 
   const handleModelSelect = (gltfModel: any) => {
       setLoadedModel(gltfModel);
+  };
+
+  const handleCustomModelSelect = (model: THREE.Group) => { // Added custom model handler
+    model.position.set(0, 0, 0);
+    model.scale.set(1, 1, 1);
+    setCustomModel(model);
   };
 
 
@@ -235,13 +242,15 @@ export function Environment() {
       <WeatherDiorama position={[10, 0, -10]} />
       <CryptoTrendsDiorama position={[0, 0, -15]} />
       <ModelUploader onModelSelect={handleModelSelect} />
-            {loadedModel && (
+      {loadedModel && (
                 <primitive 
                     object={loadedModel.scene} 
                     position={[0, 0, 0]}
                     scale={[1, 1, 1]}
                 />
             )}
+      <ModelUploader onModelSelect={handleCustomModelSelect} /> {/* Added custom model uploader */}
+      {customModel && <primitive object={customModel} />} {/* Render custom model */}
     </>
   );
 }
