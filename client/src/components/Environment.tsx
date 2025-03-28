@@ -44,7 +44,11 @@ export function Environment() {
 
       {/* Model upload section */}
       <ModelUploader onModelSelect={handleCustomModelSelect} />
-      {customModel && <primitive object={customModel} />}
+      {customModel && (
+        <mesh>
+          <primitive object={customModel} />
+        </mesh>
+      )}
     </>
   );
 }
