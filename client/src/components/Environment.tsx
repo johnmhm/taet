@@ -48,42 +48,38 @@ export function Environment() {
     return () => clearInterval(intervalId);
   }, [fetchAllData]);
   
-  // Movement system - implements camera-relative movement
-  useFrame(() => {
-    if (!avatarRef.current) return;
+  // Memoized movement calculation
+  const calculateMovement = useCallback(() => {
+    if (!avatarRef.current) return null;
     
-    // Get current camera direction for camera-relative movement
     camera.getWorldDirection(cameraDirection.current);
     
-    // Get horizontal forward direction (zero out Y component)
     cameraForward.current.set(
       cameraDirection.current.x,
       0,
       cameraDirection.current.z
     ).normalize();
     
-    // Get right vector (perpendicular to forward)
     cameraRight.current.crossVectors(
-      new THREE.Vector3(0, 1, 0),
+      UP_VECTOR,
       cameraForward.current
     ).normalize();
     
-    // Create movement vector based on input relative to camera orientation
     const moveVector = new THREE.Vector3(0, 0, 0);
     
-    // Apply camera-relative movement
-    if (forward) {
-      moveVector.addScaledVector(cameraForward.current, MOVEMENT_SPEED);
-    }
-    if (backward) {
-      moveVector.addScaledVector(cameraForward.current, -MOVEMENT_SPEED);
-    }
-    if (leftward) {
-      moveVector.addScaledVector(cameraRight.current, MOVEMENT_SPEED);
-    }
-    if (rightward) {
-      moveVector.addScaledVector(cameraRight.current, -MOVEMENT_SPEED);
-    }
+    // Batch movement calculations
+    const movements = [
+      [forward, cameraForward.current, MOVEMENT_SPEED],
+      [backward, cameraForward.current, -MOVEMENT_SPEED],
+      [leftward, cameraRight.current, MOVEMENT_SPEED],
+      [rightward, cameraRight.current, -MOVEMENT_SPEED]
+    ];
+
+    movements.forEach(([active, direction, speed]) => {
+      if (active) {
+        moveVector.addScaledVector(direction as THREE.Vector3, speed as number);
+      }
+    });
     
     // Normalize diagonal movement to maintain consistent speed
     if (moveVector.lengthSq() > 0) {
