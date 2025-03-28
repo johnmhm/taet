@@ -45,15 +45,8 @@ export function Environment() {
       {/* Model upload section */}
       <ModelUploader onModelSelect={handleCustomModelSelect} />
       {customModel && (
-        <group>
-          <mesh>
-            <primitive 
-              object={customModel}
-              position={[0, 0, -5]}
-              rotation={[0, 0, 0]}
-              scale={[1, 1, 1]}
-            />
-          </mesh>
+        <group position={[0, 0, -5]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
+          <primitive object={customModel} />
         </group>
       )}
     </>
