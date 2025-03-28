@@ -1,5 +1,6 @@
 import React, { forwardRef, useRef, useState, useEffect } from 'react';
 import { Box } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useAudio } from '../hooks/useAudio.ts';
 
