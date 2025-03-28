@@ -17,7 +17,7 @@ const MOVEMENT_SPEED = 0.1;
 const ROTATION_SPEED = 0.05;
 const CAMERA_HEIGHT = 2;
 
-export default function Environment() {
+export function Environment() {
   const { camera } = useThree();
   const playerRef = useRef();
   const [customModel, setCustomModel] = useState<THREE.Group | null>(null);
